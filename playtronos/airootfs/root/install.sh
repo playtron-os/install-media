@@ -28,7 +28,7 @@ if ! (whiptail --yesno "WARNING: $DISK will now be formatted. All data on the di
     exit 1
 fi
 
-(zstd -c -d *.img.zst | pv -n -s 8G | dd of=${DISK} bs=128M conv=notrunc,noerror) 2>&1 | whiptail --gauge "Installing PlaytronOS to disk..." 10 70 0
+(zstd -c -d *.img.zst | pv -n -s 8G | dd of=${DISK} bs=128M conv=notrunc,noerror) 2>&1 | whiptail --gauge "Installing PlaytronOS..." 10 70 0
 sync
 
 MSG="Installation failed"
