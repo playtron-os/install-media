@@ -5,7 +5,7 @@ FROM archlinux:base-devel
 MAINTAINER Wouter Wijsman
 
 #Install archiso
-RUN yes | pacman -Syuu archiso lynx
+RUN pacman --noconfirm -Syuu archiso lynx
 RUN pacman --noconfirm -S --needed git pyalpm python-commonmark python-markdown-it-py python-wheel python-build python-installer python-setuptools python-hatchling
 RUN echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     useradd build -G wheel -m
