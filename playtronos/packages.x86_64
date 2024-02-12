@@ -16,9 +16,10 @@ mkinitcpio
 mkinitcpio-archiso
 nano
 netctl
+networkmanager
 openssh
+pv
 syslinux
 usbutils
 zsh
-networkmanager
 zstd
