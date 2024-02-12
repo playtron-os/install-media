@@ -10,7 +10,7 @@ dockerfile="${work_dir}/docker/Dockerfile"
 docker pull archlinux:base-devel
 
 # build the docker container
-docker build --no-cache -f "${dockerfile}" -t chimera-install-builder ${work_dir}
+docker build --no-cache -f "${dockerfile}" -t playtron-install-builder ${work_dir}
 
 # make the container build the iso
-exec docker run --privileged --rm -v ${work_dir}:/root/chimeraos -v $GITHUB_OUTPUT:$GITHUB_OUTPUT -e "GITHUB_OUTPUT=$GITHUB_OUTPUT" -h chimera-install-builder chimera-install-builder ./build-iso.sh
+exec docker run --privileged --rm -v ${work_dir}:/root/playtronos -v $GITHUB_OUTPUT:$GITHUB_OUTPUT -e "GITHUB_OUTPUT=$GITHUB_OUTPUT" -h playtron-install-builder playtron-install-builder ./build-iso.sh

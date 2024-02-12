@@ -10,7 +10,7 @@ work_dir="$(realpath $0|rev|cut -d '/' -f2-|rev)"
 
 # configuration variables for the iso
 output_dir="${work_dir}/output"
-script_dir="${work_dir}/chimeraos"
+script_dir="${work_dir}/playtronos"
 temp_dir="${work_dir}/temp"
 
 # create output directory if it doesn't exist yet
@@ -32,8 +32,6 @@ AUR_PACKAGES="\
 "
 
 ADDITIONAL_PACKAGES="\
-    https://github.com/ChimeraOS/linux-chimeraos/releases/download/v6.3.9-chos2/linux-chimeraos-6.3.9.chos2-1-x86_64.pkg.tar.zst \
-    https://github.com/ChimeraOS/linux-chimeraos/releases/download/v6.3.9-chos2/linux-chimeraos-headers-6.3.9.chos2-1-x86_64.pkg.tar.zst \
 "
 
 # create repo directory if it doesn't exist yet
@@ -58,7 +56,7 @@ cp /tmp/temp_repo/* ${LOCAL_REPO}
 curl -L --remote-name-all --output-dir ${LOCAL_REPO} ${ADDITIONAL_PACKAGES}
 
 # Add the repo to the build
-repo-add ${LOCAL_REPO}/chimeraos.db.tar.gz ${LOCAL_REPO}/*.pkg.*
+repo-add ${LOCAL_REPO}/playtronos.db.tar.gz ${LOCAL_REPO}/*.pkg.*
 sed "s|LOCAL_REPO|$LOCAL_REPO|g" $script_dir/pacman.conf.template > $script_dir/pacman.conf
 
 # make the container build the iso

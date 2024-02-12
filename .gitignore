@@ -1,5 +1,5 @@
 temp/
 output/
-chimeraos/extra_pkg/
-chimeraos/work/
-chimeraos/pacman.conf
+playtronos/extra_pkg/
+playtronos/work/
+playtronos/pacman.conf
