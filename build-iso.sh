@@ -22,15 +22,12 @@ mkdir -p "${temp_dir}"
 
 # add AUR packages to the build
 AUR_PACKAGES="\
-    rtl88x2bu-dkms-git \
-    rtw89-dkms-git \
-    r8152-dkms \
-    rtl8812au-dkms-git \
-    rtl8814au-dkms-git \
-    rz608-fix-git \
+    frzr \
 "
 
 ADDITIONAL_PACKAGES="\
+    https://github.com/ChimeraOS/linux-chimeraos/releases/download/v6.6.13-chos1-1/linux-chimeraos-6.6.13.chos1-1-x86_64.pkg.tar.zst \
+    https://github.com/ChimeraOS/linux-chimeraos/releases/download/v6.6.13-chos1-1/linux-chimeraos-headers-6.6.13.chos1-1-x86_64.pkg.tar.zst \
 "
 
 # create repo directory if it doesn't exist yet
