@@ -5,6 +5,7 @@ acpica
 amd-ucode
 b43-fwcutter
 base
+efibootmgr
 intel-ucode
 libnewt
 linux-chimeraos
@@ -13,6 +14,7 @@ linux-firmware
 mkinitcpio
 mkinitcpio-archiso
 nano
+plymouth
 pv
 syslinux
 usbutils

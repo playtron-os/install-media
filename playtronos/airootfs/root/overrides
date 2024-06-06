@@ -1,0 +1,4 @@
+# [vendor]:[product_name]:[cpu_vendor]:[disk_name] [1 or more tabs] [Disk model text description]
+
+Valve:Jupiter:AuthenticAMD:nvme0n1					Steam Deck system disk
+ASUSTeK COMPUTER INC.:ROG Ally RC71L_RC71L:AuthenticAMD:nvme0n1		ROG Ally system disk
