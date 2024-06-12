@@ -16,7 +16,7 @@ DEVICE_CPU=$(lscpu | grep Vendor | cut -d':' -f2 | xargs echo -n)
 get_boot_disk() {
 	local current_boot_id=$(efibootmgr | grep BootCurrent | head -1 | cut -d':' -f 2 | tr -d ' ')
 	local boot_disk_info=$(efibootmgr | grep "Boot${current_boot_id}" | head -1)
-	local part_uuid=$(echo $boot_disk_info | cut -d',' -f3 | head -1 | sed -e 's/^0x//')
+	local part_uuid=$(echo $boot_disk_info | tr "/" "\n" | grep "HD(" | cut -d',' -f3 | head -1 | sed -e 's/^0x//')
 	local part=$(blkid | grep $part_uuid | cut -d':' -f1 | head -1 | sed -e 's,/dev/,,')
 	local part_path=$(readlink "/sys/class/block/$part")
 	basename `dirname $part_path`
