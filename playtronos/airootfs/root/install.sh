@@ -9,6 +9,9 @@ fi
 
 
 OS_NAME=PlaytronOS
+MIN_DISK_SIZE=60 # GB
+RAW_DISK_SIZE=10 # size in GB of the uncompressed disk image; used for estimating progress
+
 DEVICE_VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 DEVICE_PRODUCT=$(cat /sys/devices/virtual/dmi/id/product_name)
 DEVICE_CPU=$(lscpu | grep Vendor | cut -d':' -f2 | xargs echo -n)
@@ -20,6 +23,34 @@ get_boot_disk() {
 	local part=$(blkid | grep $part_uuid | cut -d':' -f1 | head -1 | sed -e 's,/dev/,,')
 	local part_path=$(readlink "/sys/class/block/$part")
 	basename `dirname $part_path`
+}
+
+is_disk_external() {
+	local disk=$1     # the disk to check if it is external
+	local external=$(lsblk --list -n -o name,hotplug | grep "$disk " | cut -d' ' -f2- | xargs echo -n)
+
+	test "$external" == "1"
+}
+
+is_disk_smaller_than() {
+	local disk=$1     # the disk to check the size of
+	local min_size=$2 # minimum size in GB
+	local size=$(lsblk --list -n -o name,size | grep "$disk " | cut -d' ' -f2- | xargs echo -n)
+
+	if echo $size | grep "T$" &> /dev/null; then
+		return 1
+	fi
+
+	if echo $size | grep "G$" &> /dev/null; then
+		size=$(echo $size | sed 's/G//' | cut -d'.' -f1)
+		if [ "$size" -lt "$min_size" ]; then
+			return 0
+		else
+			return 1
+		fi
+	fi
+
+	return 0
 }
 
 get_disk_model_override() {
@@ -51,42 +82,73 @@ get_disk_human_description() {
 	echo "[${transport}] ${vendor} ${model:=Unknown model} ($size)" | xargs echo -n
 }
 
-# a key/value store using an array
-# odd number indexes are keys, even number indexes are values
-device_list=()
-
-device_output=$(lsblk --list -n -o name,type | grep disk | grep -v zram | grep -v `get_boot_disk`)
-while read -r line; do
-	name=$(echo "$line" | cut -d' ' -f1 | xargs echo -n)
-	description=$(get_disk_human_description $name)
-	if [ -z "$description" ]; then
-		continue
-	fi
-	device_list+=($name)
-	device_list+=("$description")
-done <<< "$device_output"
-
-
-if [ "${#device_list[@]}" -gt 2 ]; then
-	DISK=$(whiptail --nocancel --menu "Choose a disk to install $OS_NAME on:" 20 70 5 "${device_list[@]}" 3>&1 1>&2 2>&3)
-else
-	DISK=${device_list[0]}
-fi
-
-DISK_DESC=$(get_disk_human_description $DISK)
-
-if ! (whiptail --yesno --defaultno "\
-WARNING: $OS_NAME will now be installed and all data on the following disk will be lost:\n\n\
-	$DISK - $DISK_DESC\n\n\
-Do you wish to proceed?" 15 70); then
-    if (whiptail --yesno --yes-button "Power off" --no-button "Open command prompt" "Installation cancelled" 10 70); then
+cancel_install() {
+    if (whiptail --yesno --yes-button "Power off" --no-button "Open command prompt" "Installation was cancelled. What would you like to do?" 10 70); then
         poweroff
     fi
 
     exit 1
+}
+
+
+while true
+do
+	# a key/value store using an array
+	# even number indexes are keys (starting at 0), odd number indexes are values
+	# keys are the disk name without `/dev` e.g. sda, nvme0n1
+	# values are the disk description
+	device_list=()
+
+	device_output=$(lsblk --list -n -o name,type | grep disk | grep -v zram | grep -v `get_boot_disk`)
+	while read -r line; do
+		name=$(echo "$line" | cut -d' ' -f1 | xargs echo -n)
+		description=$(get_disk_human_description $name)
+		if [ -z "$description" ]; then
+			continue
+		fi
+		device_list+=($name)
+		device_list+=("$description")
+	done <<< "$device_output"
+
+	if [ "${#device_list[@]}" -gt 2 ]; then
+		DISK=$(whiptail --nocancel --menu "Choose a disk to install $OS_NAME on:" 20 70 5 "${device_list[@]}" 3>&1 1>&2 2>&3)
+	else
+		DISK=${device_list[0]}
+	fi
+
+	DISK_DESC=$(get_disk_human_description $DISK)
+
+	if is_disk_smaller_than $DISK $MIN_DISK_SIZE; then
+		if (whiptail --yesno --yes-button "OK" --no-button "Cancel Install" \
+			"ERROR: The selected disk $DISK - $DISK_DESC is too small. $OS_NAME requires at least $MIN_DISK_SIZE GB.\n\nPlease select a different disk." 12 75); then
+			continue
+		else
+			cancel_install
+		fi
+	fi
+
+	if is_disk_external $DISK; then
+		if (whiptail --yesno --defaultno --yes-button "Proceed" --no-button "Select a different disk" \
+			"WARNING: $DISK - $DISK_DESC appears to be an external disk. Installing $OS_NAME to an external disk is not supported and may result in poor performance and permanent damage to the disk.\n\nDo you wish to proceed anyway?" 12 80); then
+			break
+		else
+			# Unlikely that we would ever have ONLY an external disk, so this should be good enough
+			continue
+		fi
+	fi
+
+	break
+done
+
+
+if ! (whiptail --yesno --defaultno --yes-button "Proceed" --no-button "Cancel Install" "\
+WARNING: $OS_NAME will now be installed and all data on the following disk will be lost:\n\n\
+	$DISK - $DISK_DESC\n\n\
+Do you wish to proceed?" 15 70); then
+	cancel_install
 fi
 
-(zstd -c -d *.img.zst | pv -n -s 8G | dd of=/dev/${DISK} bs=128M conv=notrunc,noerror) 2>&1 | whiptail --gauge "Installing $OS_NAME..." 10 70 0
+(zstd -c -d *.img.zst | pv -n -s ${RAW_DISK_SIZE}G | dd of=/dev/${DISK} bs=128M conv=notrunc,noerror) 2>&1 | whiptail --gauge "Installing $OS_NAME..." 10 70 0
 sync
 
 MSG="Installation failed"
