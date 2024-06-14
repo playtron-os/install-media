@@ -10,7 +10,7 @@ fi
 
 OS_NAME=PlaytronOS
 MIN_DISK_SIZE=60 # GB
-RAW_DISK_SIZE=10 # size in GB of the uncompressed disk image; used for estimating progress
+RAW_DISK_SIZE=12 # size in GB of the uncompressed disk image; used for estimating progress
 
 DEVICE_VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 DEVICE_PRODUCT=$(cat /sys/devices/virtual/dmi/id/product_name)
