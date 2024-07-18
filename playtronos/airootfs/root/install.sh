@@ -119,7 +119,7 @@ do
 	DISK_DESC=$(get_disk_human_description $DISK)
 
 	if is_disk_smaller_than $DISK $MIN_DISK_SIZE; then
-		if (whiptail --yesno --yes-button "OK" --no-button "Cancel Install" \
+		if (whiptail --yesno --yes-button "Select a different disk" --no-button "Cancel install" \
 			"ERROR: The selected disk $DISK - $DISK_DESC is too small. $OS_NAME requires at least $MIN_DISK_SIZE GB.\n\nPlease select a different disk." 12 75); then
 			continue
 		else
@@ -128,8 +128,8 @@ do
 	fi
 
 	if is_disk_external $DISK; then
-		if (whiptail --yesno --defaultno --yes-button "Proceed" --no-button "Select a different disk" \
-			"WARNING: $DISK - $DISK_DESC appears to be an external disk. Installing $OS_NAME to an external disk is not supported and may result in poor performance and permanent damage to the disk.\n\nDo you wish to proceed anyway?" 12 80); then
+		if (whiptail --yesno --defaultno --yes-button "Install anyway" --no-button "Select a different disk" \
+			"WARNING: $DISK - $DISK_DESC appears to be an external disk. Installing $OS_NAME to an external disk is not officially supported and may result in poor performance and permanent damage to the disk.\n\nDo you wish to install anyway?" 12 80); then
 			break
 		else
 			# Unlikely that we would ever have ONLY an external disk, so this should be good enough
@@ -141,7 +141,7 @@ do
 done
 
 
-if ! (whiptail --yesno --defaultno --yes-button "Proceed" --no-button "Cancel Install" "\
+if ! (whiptail --yesno --defaultno --yes-button "Erase disk and install" --no-button "Cancel install" "\
 WARNING: $OS_NAME will now be installed and all data on the following disk will be lost:\n\n\
 	$DISK - $DISK_DESC\n\n\
 Do you wish to proceed?" 15 70); then
