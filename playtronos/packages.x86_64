@@ -16,7 +16,6 @@ mkinitcpio-archiso
 nano
 plymouth
 pv
-syslinux
 usbutils
 zsh
 zstd
