@@ -22,7 +22,7 @@ mkdir -p "${temp_dir}"
 
 # add AUR packages to the build
 AUR_PACKAGES="\
-    frzr \
+    inputplumber-bin \
 "
 
 ADDITIONAL_PACKAGES="\
