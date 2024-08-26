@@ -1,7 +1,5 @@
 #! /bin/bash
 
-set -e
-
 if [ $EUID -ne 0 ]; then
 	echo "$(basename $0) must be run as root"
 	exit 1
@@ -15,6 +13,26 @@ RAW_DISK_SIZE=9 # size in GB of the uncompressed disk image; used for estimating
 DEVICE_VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 DEVICE_PRODUCT=$(cat /sys/devices/virtual/dmi/id/product_name)
 DEVICE_CPU=$(lscpu | grep Vendor | cut -d':' -f2 | xargs echo -n)
+
+init_gamepad_support() {
+	echo "Initializing gamepad support..."
+	modprobe xpad > /dev/null
+	systemctl start inputplumber > /dev/null
+
+	# wait up to 10 seconds for input plumber
+	for i in $(seq 1 100); do
+		sleep 0.1
+		systemctl status inputplumber > /dev/null
+		if [ $? == 0 ]; then
+			break
+		fi
+	done
+
+	busctl call org.shadowblip.InputPlumber \
+		/org/shadowblip/InputPlumber/CompositeDevice0 \
+		org.shadowblip.Input.CompositeDevice \
+		LoadProfilePath "s" /root/gamepad_profile.yaml
+}
 
 get_boot_disk() {
 	local current_boot_id=$(efibootmgr | grep BootCurrent | head -1 | cut -d':' -f 2 | tr -d ' ')
@@ -90,6 +108,12 @@ cancel_install() {
     exit 1
 }
 
+
+init_gamepad_support
+
+# fail on error only after gamepad support initialization
+# otherwise installer fails if inputplumber fails to start
+set -e
 
 while true
 do
