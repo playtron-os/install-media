@@ -19,19 +19,17 @@ init_gamepad_support() {
 	modprobe xpad > /dev/null
 	systemctl start inputplumber > /dev/null
 
-	# wait up to 10 seconds for input plumber
+	# wait up to 10 seconds for an input plumber controller device
 	for i in $(seq 1 100); do
 		sleep 0.1
-		systemctl status inputplumber > /dev/null
+		busctl call org.shadowblip.InputPlumber \
+			/org/shadowblip/InputPlumber/CompositeDevice0 \
+			org.shadowblip.Input.CompositeDevice \
+			LoadProfilePath "s" /root/gamepad_profile.yaml &> /dev/null
 		if [ $? == 0 ]; then
 			break
 		fi
 	done
-
-	busctl call org.shadowblip.InputPlumber \
-		/org/shadowblip/InputPlumber/CompositeDevice0 \
-		org.shadowblip.Input.CompositeDevice \
-		LoadProfilePath "s" /root/gamepad_profile.yaml
 }
 
 get_boot_disk() {
