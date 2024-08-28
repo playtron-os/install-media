@@ -33,6 +33,44 @@ mapping:
     target_events:
       - keyboard: KeyRight
 
+  # Left analog stick
+  - name: Left Stick Up
+    source_event:
+      gamepad:
+        axis:
+          name: LeftStick
+          direction: up
+          deadzone: 0.8
+    target_events:
+      - keyboard: KeyUp
+  - name: Left Stick Down
+    source_event:
+      gamepad:
+        axis:
+          name: LeftStick
+          direction: down
+          deadzone: 0.8
+    target_events:
+      - keyboard: KeyDown
+  - name: Left Stick Left
+    source_event:
+      gamepad:
+        axis:
+          name: LeftStick
+          direction: left
+          deadzone: 0.8
+    target_events:
+      - keyboard: KeyLeft
+  - name: Left Stick Right
+    source_event:
+      gamepad:
+        axis:
+          name: LeftStick
+          direction: right
+          deadzone: 0.8
+    target_events:
+      - keyboard: KeyRight
+
   # Buttons
   - name: A Button
     source_event:
