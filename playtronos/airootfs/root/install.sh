@@ -14,14 +14,12 @@ DEVICE_VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 DEVICE_PRODUCT=$(cat /sys/devices/virtual/dmi/id/product_name)
 DEVICE_CPU=$(lscpu | grep Vendor | cut -d':' -f2 | xargs echo -n)
 
-init_gamepad_support() {
-	echo "Initializing gamepad support..."
+poll_gamepad() {
 	modprobe xpad > /dev/null
 	systemctl start inputplumber > /dev/null
 
-	# wait up to 10 seconds for an input plumber controller device
-	for i in $(seq 1 100); do
-		sleep 0.1
+	while true; do
+		sleep 1
 		busctl call org.shadowblip.InputPlumber \
 			/org/shadowblip/InputPlumber/CompositeDevice0 \
 			org.shadowblip.Input.CompositeDevice \
@@ -36,6 +34,12 @@ get_boot_disk() {
 	local current_boot_id=$(efibootmgr | grep BootCurrent | head -1 | cut -d':' -f 2 | tr -d ' ')
 	local boot_disk_info=$(efibootmgr | grep "Boot${current_boot_id}" | head -1)
 	local part_uuid=$(echo $boot_disk_info | tr "/" "\n" | grep "HD(" | cut -d',' -f3 | head -1 | sed -e 's/^0x//')
+
+	if [ -z $part_uuid ]; then
+		# prevent printing errors when the boot disk info is not in a known format
+		return
+	fi
+
 	local part=$(blkid | grep $part_uuid | cut -d':' -f1 | head -1 | sed -e 's,/dev/,,')
 	local part_path=$(readlink "/sys/class/block/$part")
 	basename `dirname $part_path`
@@ -106,12 +110,9 @@ cancel_install() {
     exit 1
 }
 
+# start polling for a gamepad
+poll_gamepad &
 
-init_gamepad_support
-
-# fail on error only after gamepad support initialization
-# otherwise installer fails if inputplumber fails to start
-set -e
 
 while true
 do
@@ -121,7 +122,13 @@ do
 	# values are the disk description
 	device_list=()
 
-	device_output=$(lsblk --list -n -o name,type | grep disk | grep -v zram | grep -v `get_boot_disk`)
+	boot_disk=$(get_boot_disk)
+	if [ -n "$boot_disk" ]; then
+		device_output=$(lsblk --list -n -o name,type | grep disk | grep -v zram | grep -v $boot_disk)
+	else
+		device_output=$(lsblk --list -n -o name,type | grep disk | grep -v zram)
+	fi
+
 	while read -r line; do
 		name=$(echo "$line" | cut -d' ' -f1 | xargs echo -n)
 		description=$(get_disk_human_description $name)
@@ -132,10 +139,15 @@ do
 		device_list+=("$description")
 	done <<< "$device_output"
 
+	# NOTE: each disk entry consists of 2 elements in the array (disk name & disk description)
 	if [ "${#device_list[@]}" -gt 2 ]; then
 		DISK=$(whiptail --nocancel --menu "Choose a disk to install $OS_NAME on:" 20 70 5 "${device_list[@]}" 3>&1 1>&2 2>&3)
-	else
+	elif [ "${#device_list[@]}" -eq 2 ]; then
+		# skip selection menu if only a single disk is available to choose from
 		DISK=${device_list[0]}
+	else
+		whiptail --msgbox "Could not find a disk to install to.\n\nPlease connect a 64 GB or larger disk and start the installer again." 12 70
+		cancel_install
 	fi
 
 	DISK_DESC=$(get_disk_human_description $DISK)
