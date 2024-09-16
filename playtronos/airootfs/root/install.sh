@@ -36,6 +36,12 @@ get_boot_disk() {
 	local current_boot_id=$(efibootmgr | grep BootCurrent | head -1 | cut -d':' -f 2 | tr -d ' ')
 	local boot_disk_info=$(efibootmgr | grep "Boot${current_boot_id}" | head -1)
 	local part_uuid=$(echo $boot_disk_info | tr "/" "\n" | grep "HD(" | cut -d',' -f3 | head -1 | sed -e 's/^0x//')
+
+	if [ -z $part_uuid ]; then
+		# prevent printing errors when the boot disk info is not in a known format
+		return
+	fi
+
 	local part=$(blkid | grep $part_uuid | cut -d':' -f1 | head -1 | sed -e 's,/dev/,,')
 	local part_path=$(readlink "/sys/class/block/$part")
 	basename `dirname $part_path`
@@ -121,7 +127,13 @@ do
 	# values are the disk description
 	device_list=()
 
-	device_output=$(lsblk --list -n -o name,type | grep disk | grep -v zram | grep -v `get_boot_disk`)
+	boot_disk=$(get_boot_disk)
+	if [ -n "$boot_disk" ]; then
+		device_output=$(lsblk --list -n -o name,type | grep disk | grep -v zram | grep -v $boot_disk)
+	else
+		device_output=$(lsblk --list -n -o name,type | grep disk | grep -v zram)
+	fi
+
 	while read -r line; do
 		name=$(echo "$line" | cut -d' ' -f1 | xargs echo -n)
 		description=$(get_disk_human_description $name)
