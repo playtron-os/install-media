@@ -144,10 +144,15 @@ do
 		device_list+=("$description")
 	done <<< "$device_output"
 
+	# NOTE: each disk entry consists of 2 elements in the array (disk name & disk description)
 	if [ "${#device_list[@]}" -gt 2 ]; then
 		DISK=$(whiptail --nocancel --menu "Choose a disk to install $OS_NAME on:" 20 70 5 "${device_list[@]}" 3>&1 1>&2 2>&3)
-	else
+	elif [ "${#device_list[@]}" -eq 2 ]; then
+		# skip selection menu if only a single disk is available to choose from
 		DISK=${device_list[0]}
+	else
+		whiptail --msgbox "No candidate installation disk found.\n\nPlease connect a 64 GB or larger disk and start the installer again." 12 70
+		cancel_install
 	fi
 
 	DISK_DESC=$(get_disk_human_description $DISK)
