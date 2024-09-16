@@ -146,7 +146,7 @@ do
 		# skip selection menu if only a single disk is available to choose from
 		DISK=${device_list[0]}
 	else
-		whiptail --msgbox "No candidate installation disk found.\n\nPlease connect a 64 GB or larger disk and start the installer again." 12 70
+		whiptail --msgbox "Could not find a disk to install to.\n\nPlease connect a 64 GB or larger disk and start the installer again." 12 70
 		cancel_install
 	fi
 
