@@ -14,14 +14,12 @@ DEVICE_VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 DEVICE_PRODUCT=$(cat /sys/devices/virtual/dmi/id/product_name)
 DEVICE_CPU=$(lscpu | grep Vendor | cut -d':' -f2 | xargs echo -n)
 
-init_gamepad_support() {
-	echo "Initializing gamepad support..."
+poll_gamepad() {
 	modprobe xpad > /dev/null
 	systemctl start inputplumber > /dev/null
 
-	# wait up to 10 seconds for an input plumber controller device
-	for i in $(seq 1 100); do
-		sleep 0.1
+	while true; do
+		sleep 1
 		busctl call org.shadowblip.InputPlumber \
 			/org/shadowblip/InputPlumber/CompositeDevice0 \
 			org.shadowblip.Input.CompositeDevice \
@@ -112,12 +110,9 @@ cancel_install() {
     exit 1
 }
 
+# start polling for a gamepad
+poll_gamepad &
 
-init_gamepad_support
-
-# fail on error only after gamepad support initialization
-# otherwise installer fails if inputplumber fails to start
-set -e
 
 while true
 do
