@@ -6,7 +6,7 @@ if [ $EUID -ne 0 ]; then
 fi
 
 
-OS_NAME=PlaytronOS
+OS_NAME="Playtron GameOS"
 MIN_DISK_SIZE=55 # GB
 RAW_DISK_SIZE=9 # size in GB of the uncompressed disk image; used for estimating progress
 

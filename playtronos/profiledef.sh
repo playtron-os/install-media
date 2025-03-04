@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
 
-iso_name="playtronos"
-iso_label="PLAYTRONOS_$(date +%Y%m)"
-iso_publisher="PlaytronOS <https://playtron.one>"
-iso_application="PlaytronOS Installer"
+iso_name="playtron-gameos-installer"
+iso_label="PLAYTRON_GAMEOS_$(date +%Y%m)"
+iso_publisher="Playtron <https://playtron.one>"
+iso_application="Playtron GameOS Installer"
 iso_version=$(date +%Y.%m.%d)
 install_dir="arch"
 buildmodes=('iso')

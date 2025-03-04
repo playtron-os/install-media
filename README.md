@@ -1,8 +1,8 @@
 # install-media
-Build the PlaytronOS installation media.
+Build the Playtron GameOS installation media.
 
 ## How to build
-There are two methods of building the installation media for PlaytronOS. From an Arch based system or from a Docker container.
+There are two methods of building the installation media for Playtron GameOS. From an Arch based system or from a Docker container.
 
 ### Arch based systems
 On Arch the following packages will need to be installed:
@@ -33,7 +33,7 @@ To start building, use the following command:
 Here a short explaination of what which files and directories do.
 
 ### playtronos
-Contains the modified archiso profile for PlaytronOS.
+Contains the modified archiso profile for Playtron GameOS.
 
 ### playtronos/pacman.conf
 The pacman configuration during the creation of the installation media. Repositories can be added here.

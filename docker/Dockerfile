@@ -1,4 +1,4 @@
-#Dockerfile for building PlaytronOS install-media
+#Dockerfile for building Playtron GameOS install-media
 #Based on Arch
 
 FROM archlinux:base-devel
