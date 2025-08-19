@@ -201,8 +201,8 @@ sync
 MSG="Installation failed"
 if [ "$?" == "0" ]; then
     MSG="Installation completed"
-    efibootmgr --delete-bootnum --label $OS_NAME || true
-    efibootmgr --create --disk /dev/${DISK} --part 1 --loader \\EFI\\fedora\\shim.efi --label $OS_NAME
+    efibootmgr --delete-bootnum --label "$OS_NAME" || true
+    efibootmgr --create --disk /dev/${DISK} --part 1 --loader \\EFI\\fedora\\shim.efi --label "$OS_NAME"
 fi
 
 if (whiptail --yesno --yes-button "Reboot" --no-button "Open command prompt" "${MSG}" 10 70); then
