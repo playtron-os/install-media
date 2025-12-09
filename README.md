@@ -1,6 +1,14 @@
 # install-media
 Build the Playtron GameOS installation media.
 
+## Setup
+Before starting the installer build, you must have built a system disk image and compressed it.
+
+You can compress the disk image with `zstd -9 playtron-os.img`.
+Then place the compressed `.img.zst` os disk image in `playtronos/airootfs/root/`.
+
+This compressed disk image is what will be written to the target disk by the installer.
+
 ## How to build
 There are two methods of building the installation media for Playtron GameOS. From an Arch based system or from a Docker container.
 
