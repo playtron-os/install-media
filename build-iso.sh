@@ -20,33 +20,15 @@ mkdir -p "${output_dir}"
 rm -rf "${temp_dir}"
 mkdir -p "${temp_dir}"
 
-# add AUR packages to the build
-AUR_PACKAGES="\
-    inputplumber-bin \
-"
-
 ADDITIONAL_PACKAGES="\
     https://github.com/ChimeraOS/linux-chimeraos/releases/download/v6.9.12-chos9-1/linux-chimeraos-6.9.12.chos9-1-x86_64.pkg.tar.zst \
     https://github.com/ChimeraOS/linux-chimeraos/releases/download/v6.9.12-chos9-1/linux-chimeraos-headers-6.9.12.chos9-1-x86_64.pkg.tar.zst \
+    https://archive.archlinux.org/packages/i/inputplumber/inputplumber-0.68.0-1-x86_64.pkg.tar.zst \
 "
 
 # create repo directory if it doesn't exist yet
 LOCAL_REPO="${script_dir}/extra_pkg"
 mkdir -p ${LOCAL_REPO}
-
-PIKAUR_CMD="PKGDEST=/tmp/temp_repo pikaur --noconfirm -Sw ${AUR_PACKAGES}"
-PIKAUR_RUN=(bash -c "${PIKAUR_CMD}")
-if [ -n "${BUILD_USER}" ]; then
-	PIKAUR_RUN=(su "${BUILD_USER}" -c "${PIKAUR_CMD}")
-fi
-
-# build packages to the repo
-pushd /home/${BUILD_USER}
-"${PIKAUR_RUN[@]}"
-popd
-
-# copy all built packages to the repo
-cp /tmp/temp_repo/* ${LOCAL_REPO}
 
 # download additional packages to the repo
 curl -L --remote-name-all --output-dir ${LOCAL_REPO} ${ADDITIONAL_PACKAGES}
