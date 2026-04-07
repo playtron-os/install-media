@@ -8,7 +8,7 @@ fi
 
 OS_NAME="Playtron GameOS"
 MIN_DISK_SIZE=55 # GB
-RAW_DISK_SIZE=9 # size in GB of the uncompressed disk image; used for estimating progress
+RAW_DISK_SIZE=13 # size in GB of the uncompressed disk image; used for estimating progress
 
 DEVICE_VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 DEVICE_PRODUCT=$(cat /sys/devices/virtual/dmi/id/product_name)
